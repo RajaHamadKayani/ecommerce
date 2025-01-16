@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:ecommerce_app/models/user_model.dart';
 import 'package:ecommerce_app/services/auth_services.dart';
 import 'package:ecommerce_app/utils/toast_util.dart';
@@ -18,38 +20,38 @@ class SignupController extends GetxController {
   var passwordController = TextEditingController();
 
   var isLoading = false.obs;
-Future<void> registerUser() async {
-  isLoading.value = true;
-  try {
-    // Register the user and get the userCredential
-    UserCredential userCredential = await _authService.registerUser(
-      emailController.text,
-      passwordController.text,
-    );
+ Future<void> registerUser(File? imageFile) async {
+    isLoading.value = true;
+    try {
+      // Register the user
+      UserCredential userCredential = await _authService.registerUser(
+        emailController.text,
+        passwordController.text,
+      );
 
-    // Create a UserModel with the generated UID
-    UserModel newUser = UserModel(
-      id: userCredential.user!.uid, // Use the UID from Firebase
-      name: nameController.text,
-      email: emailController.text,
-      address: addressController.text,
-      phone: phoneController.text,
-      dob: dobController.text,
-    );
+      // Upload the image to Cloudinary
+      String? imageUrl;
+      if (imageFile != null) {
+        imageUrl = await _authService.uploadImageToCloudinary(imageFile);
+      }
 
-    // Save the user data to Firestore
-    await _authService.saveUserToFirestore(newUser);
+      // Create UserModel with image URL
+      UserModel newUser = UserModel(
+        id: userCredential.user!.uid,
+        email: emailController.text,
+        phone: phoneController.text,
+        imageUrl: imageUrl,
+      );
 
+      // Save user details to Firestore
+      await _authService.saveUserToFirestore(newUser);
 
-    ToastUtil.showToast(message: "User registered Successfully",
-    );        } catch (e) {
-
-    ToastUtil.showToast(message: "Error. Unable to register user",
-    );        } 
-    finally {
-    isLoading.value = false;
+      ToastUtil.showToast(message: "User registered successfully!");
+    } catch (e) {
+      ToastUtil.showToast(message: "Error: $e");
+    } finally {
+      isLoading.value = false;
+    }
   }
-}
-
 
 }

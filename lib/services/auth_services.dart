@@ -1,8 +1,12 @@
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/models/user_model.dart';
+import 'package:ecommerce_app/utils/toast_util.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:http/http.dart' as http;
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -19,7 +23,29 @@ class AuthService {
       throw Exception("Error registering user: $e");
     }
   }
+ // Upload image to Cloudinary
+  Future<String> uploadImageToCloudinary(File imageFile) async {
+    final cloudName = 'dqs1y6urv'; // Replace with your Cloudinary Cloud Name
+    final apiKey = '463369248646777'; // Replace with your Cloudinary API Key
+    final preset = 'ecommerce_preset'; // Replace with your Cloudinary Upload Preset
 
+   
+  final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+  final request = http.MultipartRequest('POST', url)
+    ..fields['upload_preset'] = preset
+    ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+
+  final response = await request.send();
+  if (response.statusCode == 200) {
+    ToastUtil.showToast(message: "Image uploaded to Cloudinary successfully");
+    final res = await http.Response.fromStream(response);
+    final data = jsonDecode(res.body);
+    return data['secure_url']; // Image URL from Cloudinary
+  } else {
+    ToastUtil.showToast(message: "Failed to upload image to Cloudinary");
+    throw Exception('Failed to upload image to Cloudinary');
+  }
+  }
   // Save user details to Firestore
   Future<void> saveUserToFirestore(UserModel user) async {
     try {
@@ -57,5 +83,13 @@ class AuthService {
       throw Exception("Error fetching current user data: $e");
     }
     return null;
+  }
+    // Send password reset email
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      throw Exception("Error sending password reset email: $e");
+    }
   }
 }

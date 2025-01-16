@@ -1,12 +1,14 @@
+import 'dart:io';
 
-
+import 'package:dotted_border/dotted_border.dart';
 import 'package:ecommerce_app/controllers/sign_up_controller.dart';
 import 'package:ecommerce_app/views/authentication_view/login_view.dart';
 import 'package:ecommerce_app/views/widgets/reusable_container.dart';
 import 'package:ecommerce_app/views/widgets/reusable_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:uuid/uuid.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 class SignUpView extends StatefulWidget {
@@ -19,6 +21,7 @@ class SignUpView extends StatefulWidget {
 class _SignUpViewState extends State<SignUpView> {
   SignupController signupController = Get.put(SignupController());
   String selectedDate = "Select Date"; // Initial text
+  XFile? _image; // Holds the picked image
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -61,257 +64,488 @@ class _SignUpViewState extends State<SignUpView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset:
-          true, // Allow the screen to resize when the keyboard is open
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        resizeToAvoidBottomInset:
+            true, // Allow the screen to resize when the keyboard is open
+        body: Stack(children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/bg.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const SizedBox(
+                        height: 70,
+                      ),
+                      Text(
+                        "Create",
+                        style: GoogleFonts.raleway(
+                            fontSize: 50,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff202020)),
+                      ),
+                      Text(
+                        "Account",
+                        style: GoogleFonts.raleway(
+                            fontSize: 50,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff202020)),
+                      ),
+                      const SizedBox(
+                        height: 54,
+                      ),
                       GestureDetector(
                         onTap: () {
-                          Get.back(); // Navigate back
+                          _showImageSourceBottomSheet(context);
                         },
-                        child: Container(
-                          height: 46,
-                          width: 46,
-                          decoration: BoxDecoration(
-                              color: const Color(0xffF2F2F5),
-                              borderRadius: BorderRadius.circular(50)),
-                          child: const Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 4),
-                              child: Icon(
-                                Icons.arrow_back_ios,
-                                size: 18,
-                                color: Color(0xff1F1C33),
+                        child: _image == null
+                            ? DottedBorder(
+                                borderType: BorderType
+                                    .Circle, // Use Circle for circular borders
+                                dashPattern: const [15, 3],
+                                color: const Color(0xff004CFF),
+                                strokeWidth: 1.5,
+                                child: Container(
+                                  height:
+                                      90, // Ensure height and width are the same for a perfect circle
+                                  width: 90,
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    shape: BoxShape.circle, // Circle shape
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 26),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Center(
+                                          child: SizedBox(
+                                            height: 28,
+                                            width: 34,
+                                            child: FittedBox(
+                                              fit: BoxFit.cover,
+                                              child: Icon(
+                                                Icons.camera_alt_outlined,
+                                                color: Color(0xff004CFF),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    width: 130,
+                                    height: 130,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge
+                                                    ?.color ==
+                                                Colors.white
+                                            ? const Color(0xff575075)
+                                            : Colors.white,
+                                        width: 3,
+                                      ),
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 65,
+                                      backgroundImage:
+                                          FileImage(File(_image!.path)),
+                                      onBackgroundImageError:
+                                          (error, stackTrace) {
+                                        print("Failed to load image: $error");
+                                      },
+                                      child: null,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 1,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _showImageSourceBottomSheet(context);
+                                      },
+                                      child: Container(
+                                        height: 30,
+                                        width: 30,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black26,
+                                              blurRadius: 4,
+                                              offset: Offset(2, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.edit,
+                                          size: 16,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ),
-                        ),
+                      ),
+                      const SizedBox(
+                        height: 32,
+                      ),
+                      ReusableTextFieldWidget(
+                        controller: signupController.emailController,
+                        hintText: "Enter your Email",
+                        title: 'Email',
+                        focusNode: emailController, // Assign focus node
+                        textInputAction: TextInputAction
+                            .next, // Set the action to move to the next field
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(context)
+                              .requestFocus(passwordController);
+                        },
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      ReusableTextFieldWidget(
+                        controller: signupController.passwordController,
+                        hintText: "Enter your Password",
+                        title: 'Password',
+                        focusNode: passwordController, // Assign focus node
+                        textInputAction: TextInputAction
+                            .next, // Set the action to move to the next field
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(context).requestFocus(nameController);
+                        },
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      ReusableTextFieldWidget(
+                        controller: signupController.phoneController,
+                        hintText: "Enter your Phone",
+                        title: 'Phone',
+                        focusNode: phoneController, // Assign focus node
+                        textInputAction: TextInputAction
+                            .next, // Set the action to move to the next field
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(context).requestFocus(phoneController);
+                        },
+                      ),
+                      const SizedBox(
+                        height: 50,
                       ),
                       Center(
-                        child: const Text(
-                          "BOOK HIVE",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            fontFamily: "Pulp",
-                            fontWeight: FontWeight.bold,
+                        child: Obx(
+                          () => signupController.isLoading.value
+                              ? const CircularProgressIndicator()
+                              : GestureDetector(
+                                  onTap: () async {
+                                    if (_formKey.currentState!.validate()) {
+                                      await signupController.registerUser(
+                                        _image != null
+                                            ? File(_image!.path)
+                                            : null,
+                                      );
+
+                                      // Clear the text fields after successful upload
+                                      signupController.nameController.clear();
+                                      signupController.emailController.clear();
+                                      signupController.passwordController
+                                          .clear();
+                                      signupController.phoneController.clear();
+                                      signupController.addressController
+                                          .clear();
+                                      signupController.dobController.clear();
+                                      Get.off(() => const LoginView());
+                                    }
+                                  },
+                                  child: ReusableContainer(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: 0xff004CFF,
+                                      title: "Done"),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.back();
+                          },
+                          child: Text(
+                            "Cancel",
+                            style: GoogleFonts.nunitoSans(
+                              color: Color(0xff202020),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300,
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(),
                     ],
                   ),
-                  const SizedBox(
-                    height: 28,
-                  ),
-                  Text(
-                    "SignUp",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 38,
-                      fontFamily: "Pulp",
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 28,
-                  ),
-                  ReusableTextFieldWidget(
-                    controller: signupController.emailController,
-                    hintText: "Enter your Email",
-                    suffixIcon: const Icon(Icons.email, color: Colors.black),
-                    title: 'Email',
-                    focusNode: emailController, // Assign focus node
-                    textInputAction: TextInputAction
-                        .next, // Set the action to move to the next field
-                    onFieldSubmitted: (_) {
-                      FocusScope.of(context).requestFocus(passwordController);
-                    },
-                  ),
-                  ReusableTextFieldWidget(
-                    controller: signupController.passwordController,
-                    hintText: "Enter your Password",
-                    suffixIcon: const Icon(Icons.password, color: Colors.black),
-                    title: 'Password',
-                    focusNode: passwordController, // Assign focus node
-                    textInputAction: TextInputAction
-                        .next, // Set the action to move to the next field
-                    onFieldSubmitted: (_) {
-                      FocusScope.of(context).requestFocus(nameController);
-                    },
-                  ),
-                  ReusableTextFieldWidget(
-                    controller: signupController.nameController,
-                    hintText: "Enter your Name",
-                    suffixIcon: const Icon(Icons.person, color: Colors.black),
-                    title: 'Name',
-                    focusNode: nameController, // Assign focus node
-                    textInputAction: TextInputAction
-                        .next, // Set the action to move to the next field
-                    onFieldSubmitted: (_) {
-                      FocusScope.of(context).requestFocus(addressController);
-                    },
-                  ),
-                  ReusableTextFieldWidget(
-                    controller: signupController.addressController,
-                    hintText: "Enter your Address",
-                    suffixIcon:
-                        const Icon(Icons.location_city, color: Colors.black),
-                    title: 'Address',
-                    focusNode: addressController, // Assign focus node
-                    textInputAction: TextInputAction
-                        .next, // Set the action to move to the next field
-                    onFieldSubmitted: (_) {
-                      FocusScope.of(context).requestFocus(phoneController);
-                    },
-                  ),
-                  ReusableTextFieldWidget(
-                    controller: signupController.phoneController,
-                    hintText: "Enter your Phone",
-                    suffixIcon: const Icon(Icons.phone, color: Colors.black),
-                    title: 'Phone',
-                    focusNode: phoneController, // Assign focus node
-                    textInputAction: TextInputAction
-                        .next, // Set the action to move to the next field
-                    onFieldSubmitted: (_) {
-                      FocusScope.of(context).requestFocus(phoneController);
-                    },
-                  ),
-                  Text(
-                    "Date Of Birth",
-                    style: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                        fontFamily: "Pulp"),
-                  ),
-                  const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: () {
-                      _selectDate(context);
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.black, width: 1),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 20, horizontal: 12),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              selectedDate,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w400,
-                                  fontFamily: "Pulp",
-                                  fontSize: 14),
-                            ),
-                            Icon(Icons.calendar_month)
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: RichText(
-                        text: TextSpan(children: [
-                      TextSpan(
-                          text: "Forgot ",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w300,
-                              fontFamily: "Pulp")),
-                      TextSpan(
-                          text: "Password?",
-                          style: TextStyle(
-                              color: Color(0XFF3CBBB1),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w300,
-                              fontFamily: "Pulp"))
-                    ])),
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: Obx(
-                      () => signupController.isLoading.value
-                          ? const CircularProgressIndicator()
-                          : GestureDetector(
-                              onTap: () async {
-                                if (_formKey.currentState!.validate()) {
-                                  await signupController.registerUser();
-
-                                  // Clear the text fields after successful upload
-                                  signupController.nameController.clear();
-                                  signupController.emailController.clear();
-                                  signupController.passwordController.clear();
-                                  signupController.phoneController.clear();
-                                  signupController.addressController.clear();
-                                  signupController.dobController.clear();
-                                  Get.off(() => const LoginView());
-                                }
-                              },
-                              child: ReusableContainer(
-                                borderRadius: BorderRadius.circular(50),
-                                color: 0XFF3CBBB1,
-                                title: "SignUp",
-                              ),
-                            ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        Get.back();
-                      },
-                      child: RichText(
-                          text: TextSpan(children: [
-                        TextSpan(
-                            text: "Already Registered? ",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w300,
-                                fontFamily: "Pulp")),
-                        TextSpan(
-                            text: "Login",
-                            style: TextStyle(
-                                color: Color(0XFF3CBBB1),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w300,
-                                fontFamily: "Pulp"))
-                      ])),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        ]));
+  }
+
+  void _showImageSourceBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      backgroundColor: Colors.transparent, // Make the background transparent
+      context: context,
+      isScrollControlled: true, // Allow the bottom sheet to be full screen
+      builder: (context) {
+        return Stack(
+          children: [
+            // Semi-transparent background overlay
+            GestureDetector(
+              onTap: () => Navigator.pop(
+                  context), // Close the sheet when background is tapped
+              child: Container(
+                color: Colors.black
+                    .withOpacity(0.5), // Semi-transparent background
+              ),
+            ),
+            Align(
+              alignment:
+                  Alignment.bottomCenter, // Align the content at the bottom
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).textTheme.bodyLarge?.color ==
+                            Colors.white
+                        ? const Color(0xff100C26)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(36),
+                    border: Border.all(
+                        color: Colors.transparent), // Transparent side borders
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize
+                            .min, // Adjust the height based on content
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Center(
+                            child: SizedBox(
+                              height: 72,
+                              width: 72,
+                              child: FittedBox(
+                                fit: BoxFit.cover,
+                                child: Icon(
+                                  Icons.camera_alt_outlined,
+                                  color: Color(0xff004CFF),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            "Choose from gallery or",
+                            style: TextStyle(
+                              color: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.color ==
+                                      Colors.white
+                                  ? Colors.white
+                                  : const Color(0xff0C091C),
+                              fontFamily: "Pulp",
+                              fontSize: 20,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          Text(
+                            "click with camera",
+                            style: TextStyle(
+                              color: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.color ==
+                                      Colors.white
+                                  ? Colors.white
+                                  : const Color(0xff0C091C),
+                              fontFamily: "Pulp",
+                              fontSize: 20,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            "Choose a photo that represents you.",
+                            style: TextStyle(
+                              color: const Color(0xff948FAD),
+                              fontFamily: "Pulp",
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          Text(
+                            "Upload from gallery or take a picture",
+                            style: TextStyle(
+                              color: const Color(0xff948FAD),
+                              fontFamily: "Pulp",
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          Text(
+                            "instantly!",
+                            style: TextStyle(
+                              color: const Color(0xff948FAD),
+                              fontFamily: "Pulp",
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 22),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      Navigator.pop(
+                                          context); // Close the bottom sheet
+                                      try {
+                                        final XFile? image =
+                                            await ImagePicker().pickImage(
+                                          source: ImageSource.gallery,
+                                        );
+                                        if (image != null) {
+                                          setState(() {
+                                            _image = image;
+                                          });
+                                        }
+                                      } catch (e) {
+                                        print(
+                                            "Error picking image from gallery: $e");
+                                      }
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(50),
+                                        color: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge
+                                                    ?.color ==
+                                                Colors.white
+                                            ? Colors.white.withOpacity(0.06)
+                                            : const Color(0xff0C091C),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 19),
+                                        child: Center(
+                                          child: Text(
+                                            "Choose from gallery",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                              fontFamily: "Pulp",
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  flex: 1,
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      Navigator.pop(
+                                          context); // Close the bottom sheet
+                                      try {
+                                        final XFile? image =
+                                            await ImagePicker().pickImage(
+                                          source: ImageSource.camera,
+                                        );
+                                        if (image != null) {
+                                          setState(() {
+                                            _image = image;
+                                          });
+                                        }
+                                      } catch (e) {
+                                        print(
+                                            "Error picking image from camera: $e");
+                                      }
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(50),
+                                        color: const Color(0xff5858CC),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 19),
+                                        child: Center(
+                                          child: Text(
+                                            "Click From Camera",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                              fontFamily: "Pulp",
+                                              color: const Color(0xffffffff),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

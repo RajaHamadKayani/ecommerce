@@ -1,9 +1,11 @@
+import 'package:ecommerce_app/views/authentication_view/forget_password_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ecommerce_app/controllers/login_controller.dart';
 import 'package:ecommerce_app/views/authentication_view/signup_view.dart';
 import 'package:ecommerce_app/views/widgets/reusable_container.dart';
 import 'package:ecommerce_app/views/widgets/reusable_text_field.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -29,7 +31,7 @@ class _LoginViewState extends State<LoginView> {
           // Background Image
           Positioned.fill(
             child: Image.asset(
-              'assets/images/bg.png',
+              'assets/images/login_bg.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -37,47 +39,41 @@ class _LoginViewState extends State<LoginView> {
           SafeArea(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                padding: const EdgeInsets.symmetric( horizontal: 24),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const SizedBox(),
-                          const SizedBox(),
-                          const Center(
-                            child: Text(
-                              "BOOK HIVE",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20,
-                                fontFamily: "Pulp",
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 46), // Spacer for alignment
-                        ],
-                      ),
-                      const SizedBox(height: 28),
-                      const Text(
+                  const SizedBox(height: 320,),
+                       Text(
                         "Login",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 38,
-                          fontFamily: "Pulp",
+                        style: GoogleFonts.nunitoSans(
+                              color: Color(0xff202020),
+                          fontSize: 52,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                       Row(
+                         children: [
+                           Text(
+                            "Good to see you back!",
+                            style: GoogleFonts.nunitoSans(
+                              color: Color(0xff202020),
+                              fontSize: 19,
+                              fontWeight: FontWeight.normal,
+                            ),
+                                                 ),
+                                                 const SizedBox(width: 3,),
+                                                 Icon(Icons.favorite,
+                                                 color: Colors.black,)
+                         ],
+                       ),
                       const SizedBox(height: 28),
                       ReusableTextFieldWidget(
                         controller: loginController.emailController,
                         hintText: "Enter your Email",
-                        suffixIcon: const Icon(Icons.email, color: Colors.black),
                         title: 'Email',
                         focusNode: emailController,
                         textInputAction: TextInputAction.next,
@@ -85,42 +81,27 @@ class _LoginViewState extends State<LoginView> {
                           FocusScope.of(context).requestFocus(passwordController);
                         },
                       ),
+                      const SizedBox(height: 8,),
                       ReusableTextFieldWidget(
                         controller: loginController.passwordController,
                         hintText: "Enter your Password",
-                        suffixIcon: const Icon(Icons.password, color: Colors.black),
                         title: 'Password',
                         focusNode: passwordController,
                         textInputAction: TextInputAction.done,
                         onFieldSubmitted: (_) {},
                       ),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Forgot ",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w300,
-                                  fontFamily: "Pulp",
-                                ),
-                              ),
-                              TextSpan(
-                                text: "Password?",
-                                style: TextStyle(
-                                  color: Color(0XFF3CBBB1),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w300,
-                                  fontFamily: "Pulp",
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                     Align(
+                      alignment: Alignment.bottomRight,
+                      child: InkWell(
+                        onTap: (){
+                          Get.to(ForgetPasswordView());
+                        },
+                        child: Text("Forget Password?",
+                        style: GoogleFonts.nunitoSans(color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w300),),
                       ),
+                     ),
                       const SizedBox(height: 20),
                       Center(
                         child: Obx(
@@ -134,46 +115,22 @@ class _LoginViewState extends State<LoginView> {
                                       loginController.passwordController.clear();
                                     }
                                   },
-                                  child: ReusableContainer(
-                                    borderRadius: BorderRadius.circular(50),
-                                    color: 0XFF3CBBB1,
-                                    title: "Login",
-                                  ),
+                                  child:  ReusableContainer(borderRadius: BorderRadius.circular(16), color: 0xff004CFF, title: "Done"),
                                 ),
                         ),
                       ),
-                      const SizedBox(height: 30),
-                      Center(
-                        child: GestureDetector(
-                          onTap: () {
-                            Get.to(SignUpView());
-                          },
-                          child: RichText(
-                            text: const TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "Do not have an account? ",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w300,
-                                    fontFamily: "Pulp",
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: "SignUp",
-                                  style: TextStyle(
-                                    color: Color(0XFF3CBBB1),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w300,
-                                    fontFamily: "Pulp",
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                    const SizedBox(height: 20,),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        Get.back();
+                      },
+                      child:Text("Cancel",
+                      style: GoogleFonts.nunitoSans(color: Color(0xff202020),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w300,),),
+                    ),
+                  ),
                     ],
                   ),
                 ),

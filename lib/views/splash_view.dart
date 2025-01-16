@@ -1,4 +1,6 @@
 
+import 'package:ecommerce_app/views/authentication_view/login_view.dart';
+import 'package:ecommerce_app/views/authentication_view/signup_view.dart';
 import 'package:ecommerce_app/views/widgets/reusable_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -77,33 +79,42 @@ class _SplashViewState extends State<SplashView> {
               child: Column(
                 
                 children: [
-                  ReusableContainer(borderRadius: BorderRadius.circular(16), color: 0xff004CFF, title: "Let's get started"),
+                  GestureDetector(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const SignUpView()));
+                    },
+                    child: ReusableContainer(borderRadius: BorderRadius.circular(16), color: 0xff004CFF, title: "Let's get started")),
                    const SizedBox(height: 18,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text("I already have an account",
-                style: GoogleFonts.nunitoSans(
-                  color: Colors.black,
-                  fontWeight: FontWeight.normal,
-                  fontSize: 15,
-
-                ),),
-                const SizedBox(width: 16,),
-                Container(
-                  height: 30,
-                  width: 30,
-                  decoration: BoxDecoration(
-                    color: Color(0xff004CFF),
-                    borderRadius: BorderRadius.circular(100)
-                  ),
-                  child: Center(
-                    child: Icon(Icons.arrow_forward,
-                    color: Colors.white,),
-                  ),
-                )
-              ],
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> const LoginView()));
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("I already have an account",
+                  style: GoogleFonts.nunitoSans(
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 15,
+              
+                  ),),
+                  const SizedBox(width: 16,),
+                  Container(
+                    height: 30,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Color(0xff004CFF),
+                      borderRadius: BorderRadius.circular(100)
+                    ),
+                    child: Center(
+                      child: Icon(Icons.arrow_forward,
+                      color: Colors.white,),
+                    ),
+                  )
+                ],
+              ),
             )
                 ],
               ),

@@ -4,7 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 class ToastUtil {
   static void showToast({
     required String message,
-    Color backgroundColor = const Color(0XFF3CBBB1),
+    Color backgroundColor = const Color(0xff004CFF),
     Color textColor = Colors.white,
     double fontSize = 16.0,
     int toastDurationInSeconds = 2,
