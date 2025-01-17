@@ -1,5 +1,6 @@
 
 import 'package:ecommerce_app/firebase_options.dart';
+import 'package:ecommerce_app/views/add_product.dart';
 import 'package:ecommerce_app/views/splash_view.dart';
 
 import 'package:firebase_core/firebase_core.dart';

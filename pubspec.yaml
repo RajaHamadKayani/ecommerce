@@ -76,6 +76,10 @@ flutter:
       - assets/images/
       - assets/svgs/splash_logo.svg
       - assets/svgs/splash_logo_1.svg
+      - assets/svgs/filter_icon.svg
+      - assets/svgs/share_icon.svg
+      - assets/svgs/add_to_cart_icon.svg
+      - assets/svgs/delete_icon.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

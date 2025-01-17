@@ -92,4 +92,18 @@ class AuthService {
       throw Exception("Error sending password reset email: $e");
     }
   }
+    // Fetch user details by user ID
+   // Fetch user details from Firestore by userId
+  Future<UserModel> fetchUserById(String userId) async {
+    try {
+      DocumentSnapshot doc = await _firestore.collection('users').doc(userId).get();
+      if (doc.exists) {
+        return UserModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+      } else {
+        throw Exception('User not found');
+      }
+    } catch (e) {
+      throw Exception('Error fetching user: $e');
+    }
+  }
 }
