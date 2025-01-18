@@ -80,6 +80,12 @@ flutter:
       - assets/svgs/share_icon.svg
       - assets/svgs/add_to_cart_icon.svg
       - assets/svgs/delete_icon.svg
+      - assets/svgs/empty_wishlist.svg
+      - assets/svgs/empty_cart.svg
+      - assets/svgs/home.svg
+      - assets/svgs/wishlist.svg
+      - assets/svgs/cart.svg
+      - assets/svgs/profile.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

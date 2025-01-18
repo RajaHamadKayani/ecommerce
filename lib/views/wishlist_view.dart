@@ -4,9 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class WishlistScreen extends StatelessWidget {
-  final String userId;
+   String? userId;
 
-  WishlistScreen({Key? key, required this.userId}) : super(key: key);
+  WishlistScreen({Key? key,  this.userId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,14 @@ class WishlistScreen extends StatelessWidget {
                     }
                 
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(child: Text('No items in your wishlist.'));
+                      return  Center(child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment:CrossAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset("assets/svgs/empty_wishlist.svg"),
+                          Text('No items in your wishlist.'),
+                        ],
+                      )); 
                     }
                 
                     final products = snapshot.data!.docs;

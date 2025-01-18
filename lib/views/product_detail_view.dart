@@ -126,6 +126,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                             await _productController.addToCart(
                               widget.productId,
                               widget.userId,
+                              context
                             );
                           }
                         },

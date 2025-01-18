@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/models/product_model.dart';
 import 'package:ecommerce_app/services/auth_services.dart';
 import 'package:ecommerce_app/services/firestore_service.dart';
+import 'package:ecommerce_app/views/cart_view.dart';
 import 'package:ecommerce_app/views/wishlist_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -82,8 +83,10 @@ class ProductController extends GetxController {
     }
   }
 
-  Future<void> addToCart(String productId, String userId) async {
+  Future<void> addToCart(String productId, String userId, BuildContext context) async {
     await _firestoreService.addToCart(productId, userId);
+          Navigator.push(context, MaterialPageRoute(builder: (context)=> CartView(userId: userId)));
+
   }
 
   Future<void> removeFromCart(String productId, String userId) async {

@@ -1,6 +1,7 @@
 
 import 'package:ecommerce_app/services/auth_services.dart';
 import 'package:ecommerce_app/utils/toast_util.dart';
+import 'package:ecommerce_app/views/dashboard_view.dart';
 import 'package:ecommerce_app/views/home_view.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class LoginController extends GetxController {
 
     ToastUtil.showToast(message: "Login Successfully",
     );      // Navigate to the next screen
-    Get.to(HomeView());
+    Get.to(DashboardView());
     } catch (e) {
     ToastUtil.showToast(message: "Login failed. Something went wrong",
     );    } finally {
