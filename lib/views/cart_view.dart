@@ -16,6 +16,8 @@ class CartView extends StatefulWidget {
 
 class _CartViewState extends State<CartView> {
   var shippingAdressController = TextEditingController();
+                                double totalPrice = 0;
+
   String shippingAddress =
       "26, Doung So 2, Thei Dain Ward, An Phu, District 2, Ho Chi Min City"; // Default address
   int counter = 1;
@@ -337,105 +339,127 @@ class _CartViewState extends State<CartView> {
                 ],
               ),
             ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Color(0xffF5F5F5),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Total ",
-                            style: GoogleFonts.raleway(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          // Display total price here
-                          StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance
-                                .collection('products')
-                                .where('cart', arrayContains: widget.userId)
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData ||
-                                  snapshot.data!.docs.isEmpty) {
-                                return Text(
-                                  "\$0.00",
-                                  style: GoogleFonts.raleway(
-                                    color: Colors.black,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                );
-                              }
+         StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance
+      .collection('products')
+      .where('cart', arrayContains: widget.userId)
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-                              final products = snapshot.data!.docs;
-                              double totalPrice = 0;
+    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      return Center(
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SvgPicture.asset("assets/svgs/empty_cart.svg"),
+          Text('No items in your cart.'),
+        ],
+      ));
+    }
 
-                              // Calculate total price
-                              products.forEach((product) {
-                                final productId = product.id;
-                                final productPrice = product['price'];
-                                final quantity = quantities[productId] ?? 1;
-                                totalPrice += productPrice * quantity;
-                              });
+    final products = snapshot.data!.docs;
+    double totalPrice = 0;
+    products.forEach((product) {
+      final productId = product.id;
+      final productPrice = product['price'];
+      final quantity = quantities[productId] ?? 1;
+      totalPrice += productPrice * quantity;
+    });
 
-                              return Text(
-                                "\$${totalPrice.toStringAsFixed(2)}",
-                                style: GoogleFonts.raleway(
-                                  color: Colors.black,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Color(0xffF5F5F5),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Total ",
+                    style: GoogleFonts.raleway(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  // Display total price here
+                  Text(
+                    "\$${totalPrice.toStringAsFixed(2)}",
+                    style: GoogleFonts.raleway(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentView(
+                        shippingAdress: shippingAddress,
+                        cartItems: products.map((product) {
+                          final productId = product.id;
+                          final productName = product['name'];
+                          final productPrice = product['price'];
+                          final productQuantity = quantities[productId] ?? 1;
+                          final image=product['imageUrl'];
+                          return {
+                            'name': productName,
+                            'price': productPrice,
+                            'quantity': productQuantity,
+                            'totalPrice': productPrice * productQuantity,
+                            'imageUrl':image
+                          };
+                        }).toList(),
+                        totalPrice: totalPrice,
                       ),
-                      GestureDetector(
-                        onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>  PaymentView(
-                            shippingAdress: shippingAddress,
-                          )));
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Color(0xff004CFF),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Padding(
-                            padding:
-                                EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                            child: Center(
-                              child: Text(
-                                "Checkout",
-                                style: GoogleFonts.nunitoSans(
-                                    color: Color(0xffF3F3F3),
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: 16),
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Color(0xff004CFF),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 25),
+                    child: Center(
+                      child: Text(
+                        "Checkout",
+                        style: GoogleFonts.nunitoSans(
+                            color: Color(0xffF3F3F3),
+                            fontWeight: FontWeight.w300,
+                            fontSize: 16),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  },
+),
+
           ],
         ),
       ),

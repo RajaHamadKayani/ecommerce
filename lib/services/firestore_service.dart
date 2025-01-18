@@ -12,12 +12,16 @@ class FirestoreService {
   // Add a product to Firestore
   Future<void> addProduct(ProductModel product) async {
     try {
-      await _firestore.collection('products').doc(product.id).set(product.toMap());
+      await _firestore
+          .collection('products')
+          .doc(product.id)
+          .set(product.toMap());
     } catch (e) {
       throw Exception("Error adding product: $e");
     }
   }
-   // Stream of products for real-time updates
+
+  // Stream of products for real-time updates
   Stream<List<ProductModel>> streamAllProducts() {
     return _firestore.collection('products').snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -25,29 +29,32 @@ class FirestoreService {
       }).toList();
     });
   }
-   // Upload image to Cloudinary
+
+  // Upload image to Cloudinary
   Future<String> uploadImageToCloudinary(File imageFile) async {
     final cloudName = 'dqs1y6urv'; // Replace with your Cloudinary Cloud Name
     final apiKey = '463369248646777'; // Replace with your Cloudinary API Key
-    final preset = 'ecommerce_preset'; // Replace with your Cloudinary Upload Preset
+    final preset =
+        'ecommerce_preset'; // Replace with your Cloudinary Upload Preset
 
-   
-  final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
-  final request = http.MultipartRequest('POST', url)
-    ..fields['upload_preset'] = preset
-    ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+    final url =
+        Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+    final request = http.MultipartRequest('POST', url)
+      ..fields['upload_preset'] = preset
+      ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
 
-  final response = await request.send();
-  if (response.statusCode == 200) {
-    ToastUtil.showToast(message: "Image uploaded to Cloudinary successfully");
-    final res = await http.Response.fromStream(response);
-    final data = jsonDecode(res.body);
-    return data['secure_url']; // Image URL from Cloudinary
-  } else {
-    ToastUtil.showToast(message: "Failed to upload image to Cloudinary");
-    throw Exception('Failed to upload image to Cloudinary');
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      ToastUtil.showToast(message: "Image uploaded to Cloudinary successfully");
+      final res = await http.Response.fromStream(response);
+      final data = jsonDecode(res.body);
+      return data['secure_url']; // Image URL from Cloudinary
+    } else {
+      ToastUtil.showToast(message: "Failed to upload image to Cloudinary");
+      throw Exception('Failed to upload image to Cloudinary');
+    }
   }
-  }
+
   // Save user details to Firestore
   Future<void> saveUserToFirestore(UserModel user) async {
     try {
@@ -56,7 +63,8 @@ class FirestoreService {
       throw Exception("Error saving user data: $e");
     }
   }
-   Future<void> addToWishList(String productId, String userId) async {
+
+  Future<void> addToWishList(String productId, String userId) async {
     try {
       await _firestore.collection('products').doc(productId).update({
         'wishList': FieldValue.arrayUnion([userId]),
@@ -96,4 +104,15 @@ class FirestoreService {
     }
   }
 
+  void storeOrderToFirestore(List<Map<String, dynamic>> cartItems,
+      double totalPrice, String userId, String shippingAddress) async {
+    FirebaseFirestore.instance.collection('orders').add({
+      'userId': userId,
+      'cartItems': cartItems,
+      'totalPrice': totalPrice,
+      'shippingAddress': shippingAddress,
+      'status': 'pending', // or "processing", "shipped", etc.
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
 }
